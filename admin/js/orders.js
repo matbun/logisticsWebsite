@@ -1,7 +1,7 @@
 /**
  * Wrapper function to call orders loaders functions
  *
- *@return nothig
+ * @return nothig
  */
     
 function loadOrders(){
@@ -66,7 +66,9 @@ function todayOrders(response){
 		//header row
 		var headers = [
 						"Nome cliente", 
-					   	"indirizzo"
+					   	"Indirizzo cliente",
+					   	"Dettagli ordine",
+					   	"Commerciante"
 					  ];
 		tr_header = tableRow(headers,true);
 		table.appendChild(tr_header);
@@ -77,11 +79,14 @@ function todayOrders(response){
 			//create a new row for the table
 			row = tableRow([
 							rx[i].client_name, 
-						   	rx[i].client_address
+						   	rx[i].client_address,
+						   	rx[i].order_details,
+						   	rx[i].retailer_name
 						   ]);
 			table.appendChild(row);
 		}
 	}
+
 }
 
 

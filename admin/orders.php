@@ -1,22 +1,11 @@
 
 <?php
 session_start();
-require_once('../config/config.php'); 
+require_once '../config/config.php'; 
+require_once '../login/verify_authentication.php';
 
-// if the user isn't logged in or it doesn't have the proper rights
-if (!isset($_SESSION['usr_type']) or 
-	$_SESSION['usr_type'] != 'admin' or 
-	!isset($_SESSION['authorized']) or 
-	$_SESSION['authorized'] != 1) {
-  
-  echo "<h1>Area riservata, accesso negato.</h1>";
-  echo "Per effettuare il login clicca <a href='../index.php'><font color='blue'>qui</font></a>";
-  exit();
-}
-
-// Ohterwise get the username
-$username = $_SESSION['username']; 
-echo "Admin Username: ".$username;
+// VERIFY AUTHORIZATION
+verify_login('admin', '../index.php');
 
 
 

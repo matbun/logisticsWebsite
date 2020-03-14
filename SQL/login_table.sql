@@ -1,5 +1,5 @@
 CREATE TABLE `users_type`(
-	`type` VARCHAR(20),
+	`type` VARCHAR(255),
 	PRIMARY KEY (`type`)
 );
 
@@ -11,17 +11,17 @@ VALUES
 
 CREATE TABLE `company_users` (
 	`user_id` INT AUTO_INCREMENT,
-	`username` VARCHAR(64) NOT NULL UNIQUE,
-	`password` VARCHAR(64) NOT NULL,
-	`type` VARCHAR(64) NOT NULL,
-	`nome` VARCHAR(30) NOT NULL,
-	`cognome` VARCHAR(30) NOT NULL,
-	`tel` VARCHAR(20) NOT NULL,
+	`username` VARCHAR(255) NOT NULL UNIQUE,
+	`password` VARCHAR(255) NOT NULL,
+	`type` VARCHAR(255) NOT NULL,
+	`name` VARCHAR(255) NOT NULL,
+	`surname` VARCHAR(255) NOT NULL,
+	`tel` VARCHAR(255) NOT NULL,
 	PRIMARY KEY (`user_id`),
 	FOREIGN KEY (`type`) REFERENCES `users_type` (`type`) ON UPDATE CASCADE
 );
 
-INSERT INTO `company_users` (`user_id`, `username`, `password`, `type`, `nome`, `cognome`, `tel`)
+INSERT INTO `company_users` (`user_id`, `username`, `password`, `type`, `name`, `surname`, `tel`)
 VALUES 
 	(NULL , 'matteo', sha1('prova'), 'admin', 'nome', 'cogn', '0113617261'),
 	(NULL, 'driv1', sha1('prova'), 'driver', 'nome', 'cogn', '0113617261')
@@ -30,13 +30,13 @@ VALUES
 
 # Città
 CREATE TABLE `cities`(
-	`city` VARCHAR(64) NOT NULL,
-	`prov` VARCHAR(64) NOT NULL,
-	`costo_servizio_1` FLOAT NOT NULL,
-	`costo_servizio_2` FLOAT NOT NULL,
+	`city` VARCHAR(255) NOT NULL,
+	`prov` VARCHAR(255) NOT NULL,
+	`service_cost_1` FLOAT NOT NULL,
+	`service_cost_2` FLOAT NOT NULL,
 	PRIMARY KEY (`city`, `prov`) #ogni città è univoca nella sua provincia
 );
-INSERT INTO `cities` (`city`, `prov`, `costo_servizio_1`, `costo_servizio_2`)
+INSERT INTO `cities` (`city`, `prov`, `service_cost_1`, `service_cost_2`)
 VALUES
 	("Almese", 'Torino', 1.5, 3.5),
 	("Rubiana", 'Torino', 2, 4.5),
@@ -50,30 +50,28 @@ VALUES
 # Info clienti
 CREATE TABLE `clients`(
 	`client_id` INT AUTO_INCREMENT,
-	`nome` VARCHAR(30) NOT NULL,
-	`cognome` VARCHAR(30) NOT NULL,
-	`tel` VARCHAR(20) NOT NULL,
-	`mail` VARCHAR(60) UNIQUE, #da usare anche come username!
-	`password` VARCHAR(60),
-	`via` TEXT NOT NULL,
-	`n_civico` INT NOT NULL CHECK(`n_civico` > 0),
-	`interno` INT,
-	`cap` INT NOT NULL,
-	`city` VARCHAR(60) NOT NULL,
-	`prov` VARCHAR(30) NOT NULL,
-	`frazione` VARCHAR(30),
-	`lat_gps` FLOAT,
-	`long_gps` FLOAT,
-	`altre_info` TEXT,
+	`cl_name` VARCHAR(255) NOT NULL,
+	`cl_surname` VARCHAR(255) NOT NULL,
+	`cl_tel` VARCHAR(255) NOT NULL,
+	`cl_mail` VARCHAR(255) UNIQUE, #da usare anche come username!
+	`cl_password` VARCHAR(255),
+	`cl_street` TEXT NOT NULL,
+	`cl_street_n` INT NOT NULL CHECK(`cl_street_n` > 0),
+	`cl_zip` INT NOT NULL,
+	`cl_city` VARCHAR(255) NOT NULL,
+	`cl_prov` VARCHAR(255) NOT NULL,
+	`cl_lat_gps` FLOAT,
+	`cl_long_gps` FLOAT,
+	`cl_other_info` TEXT,
 	PRIMARY KEY (`client_id`),
-	FOREIGN KEY (`city`, `prov`) REFERENCES `cities` (`city`, `prov`) ON UPDATE CASCADE,
-	CONSTRAINT unique_client UNIQUE (`nome`,`cognome`,`via`,`n_civico`,`city`, `prov`)
+	FOREIGN KEY (`cl_city`, `cl_prov`) REFERENCES `cities` (`city`, `prov`) ON UPDATE CASCADE,
+	CONSTRAINT unique_client UNIQUE (`cl_name`,`cl_surname`,`cl_street`,`cl_street_n`,`cl_city`, `cl_prov`)
 );
 
-INSERT INTO `clients` (`client_id`, `nome`, `cognome`, `tel`, `via`, `n_civico`, `interno`, `cap`, `city`, `prov`)
+INSERT INTO `clients` (`client_id`, `cl_name`, `cl_surname`, `cl_tel`, `cl_street`, `cl_street_n`, `cl_zip`, `cl_city`, `cl_prov`)
 VALUES 
-	(NULL , 'matteo', 'bunino', '3393999876', 'maria m.bugnone maetstra', 8, NULL, 10040, 'ALMESE', 'TORINO'),
-	(NULL , 'marco', 'rossi', '33453459876', 'roma', 10, NULL, 14980, 'RUBIANA', 'TORINO')
+	(NULL , 'matteo', 'bunino', '3393999876', 'maria m.bugnone maetstra', 8, 10040, 'Almese', 'Torino'),
+	(NULL , 'marco', 'rossi', '33453459876', 'roma', 10, 14980, 'Rubiana', 'Torino')
 ;
 
 
@@ -81,29 +79,27 @@ VALUES
 # Venditori
 CREATE TABLE `retailers`(
 	`retailer_id` INT AUTO_INCREMENT,
-	`nome` VARCHAR(30) NOT NULL,
-	`proprietario` VARCHAR(30) NOT NULL,
-	`tel` VARCHAR(20) NOT NULL,
-	`mail` VARCHAR(60) UNIQUE, #da usare anche come username!
-	`password` VARCHAR(60),
-	`via` TEXT NOT NULL,
-	`n_civico` INT NOT NULL CHECK(`n_civico` > 0),
-	`interno` INT,
-	`cap` INT NOT NULL,
-	`city` VARCHAR(60) NOT NULL,
-	`prov` VARCHAR(30) NOT NULL,
-	`frazione` VARCHAR(30),
-	`lat_gps` FLOAT,
-	`long_gps` FLOAT,
-	`altre_info` TEXT,
+	`ret_name` VARCHAR(255) NOT NULL,
+	`ret_owner` VARCHAR(255) NOT NULL,
+	`ret_tel` VARCHAR(255) NOT NULL,
+	`ret_mail` VARCHAR(255) UNIQUE, #da usare anche come username!
+	`ret_password` VARCHAR(255),
+	`ret_street` TEXT NOT NULL,
+	`ret_street_n` INT NOT NULL CHECK(`ret_street_n` > 0),
+	`ret_zip` INT NOT NULL,
+	`ret_city` VARCHAR(255) NOT NULL,
+	`ret_prov` VARCHAR(255) NOT NULL,
+	`ret_lat_gps` FLOAT,
+	`ret_long_gps` FLOAT,
+	`ret_other_info` TEXT,
 	PRIMARY KEY (`retailer_id`),
-	FOREIGN KEY (`city`, `prov`) REFERENCES `cities` (`city`, `prov`) ON UPDATE CASCADE, #foreign key sulla coppia
-	CONSTRAINT unique_retailer UNIQUE (`nome`,`via`,`n_civico`,`city`, `prov`)
+	FOREIGN KEY (`ret_city`, `ret_prov`) REFERENCES `cities` (`city`, `prov`) ON UPDATE CASCADE, #foreign key sulla coppia
+	CONSTRAINT unique_retailer UNIQUE (`ret_name`,`ret_street`,`ret_street_n`,`ret_city`, `ret_prov`)
 );
-INSERT INTO `retailers` (`retailer_id`, `nome`, `proprietario`, `tel`, `via`, `n_civico`, `interno`, `cap`, `city`, `prov`)
+INSERT INTO `retailers` (`retailer_id`, `ret_name`, `ret_owner`, `ret_tel`, `ret_street`, `ret_street_n`, `ret_zip`, `ret_city`, `ret_prov`)
 VALUES 
-	(NULL , 'panetteria almese', 'tonio cartonio', '3393999876', 'maria m.bugnone maetstra', 8, NULL, 10040, 'ALMESE', 'TORINO'),
-	(NULL , 'macellaio rivera', 'chef rubio', '33453459876', 'roma', 10, NULL, 14980, 'RUBIANA', 'TORINO')
+	(NULL , 'panetteria almese', 'tonio cartonio', '3393999876', 'maria m.bugnone maetstra', 8, 10040, 'ALMESE', 'TORINO'),
+	(NULL , 'macellaio rivera', 'chef rubio', '33453459876', 'roma', 10, 14980, 'RUBIANA', 'TORINO')
 ;
 
 # Quando sarà implementato il fornted pubblico, devo avviungere una verifica via software che una cera email sia unica tra le 3 
@@ -114,19 +110,19 @@ VALUES
 CREATE TABLE `orders`(
 	`client_id` INT,
 	`retailer_id` INT,
-	`date` DATE,
+	`ord_date` DATE,
 	`prod_list` TEXT NOT NULL,
-	`tot_price` FLOAT CHECK(`tot_price` >= 0),
-	`service_cost` FLOAT CHECK(`service_cost` >= 0),
+	`ord_tot_price` FLOAT CHECK(`ord_tot_price` >= 0),
+	`ord_service_cost` FLOAT CHECK(`ord_service_cost` >= 0),
 	`service_id` INT,
-	`bought` BOOLEAN,
-	`delivered` BOOLEAN,
-	PRIMARY KEY (`client_id`, `retailer_id`, `date`),
+	`bought` BOOLEAN NOT NULL DEFAULT FALSE,
+	`delivered` BOOLEAN NOT NULL DEFAULT FALSE,
+	PRIMARY KEY (`client_id`, `retailer_id`, `ord_date`),
 	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE CASCADE,
 	FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`) ON UPDATE CASCADE
 );
 
-INSERT INTO `orders` (`client_id`, `retailer_id`, `date`, `prod_list`)
+INSERT INTO `orders` (`client_id`, `retailer_id`, `ord_date`, `prod_list`)
 VALUES
-	(1,1,'2020-03-10',"latte, pane, asda")
+	(1,1,'2020-03-10',"latte, pane, giornale")
 ;
