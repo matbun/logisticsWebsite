@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+	<script type="text/javascript">
+
+		//javascript Date class
+		
+		// today and tomorrow
+		var today = new Date(); //is a timestamp
+		document.write(today.toISOString().slice(0, 10));
+		var tomorrow = new Date();
+		tomorrow.setDate(today.getDate() + 1);
+		document.write("<br>");
+		document.write(tomorrow.toISOString().slice(0, 10));
+		
+
+		
+		// un qualsiasi giorno e il successivo
+		var date = new Date("2020-12-31");
+		document.write(date.toISOString().slice(0, 10));
+		var nextDay = new Date(date);
+		nextDay.setDate(date.getDate() + 1);
+		document.write("<br>");
+		document.write(nextDay.toISOString().slice(0, 10));
+		
+	</script>
+</body>
+</html>
