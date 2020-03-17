@@ -7,13 +7,13 @@
 function loadOrders(){
 	// ajax request for today orders
 	var today = new Date();
-	var today_compact = today.toISOString().slice(0, 10); // format yyyy-mm-dd
+	var today_compact = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().slice(0, 10); // format yyyy-mm-dd
 	sendRequest("get_orders.php", "date=" + today_compact, todayOrders);
 
 	// ajax request for today orders
 	var tomorrow = new Date(today);
 	tomorrow.setDate(today.getDate() + 1);
-	var tomorrow_compact = tomorrow.toISOString().slice(0, 10);
+	var tomorrow_compact = new Date(tomorrow.getTime() - (tomorrow.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
 	sendRequest("get_orders.php", "date=" + tomorrow_compact, tomorrowOrders);
 }
 
@@ -44,6 +44,102 @@ function sendRequest(url, dataString, responseConsumer){
 	request.send(dataString);
 }
 
+class OrdersTable{
+	constructor(tableId){
+		this.table = document.createElement('TABLE');
+		this.thead = this.table.createTHead();
+		this.tbody = this.table.createTBody();
+		
+		// table metadata
+		this.table.id = tableId; //used to add rows in the body
+		this.table.border = 1;
+
+		// header building
+		this.headers = [
+						"Nome cliente", 
+					   	"Indirizzo cliente",
+					   	"Commerciante",
+					   	"Dettagli ordine",
+					   	"Approfondisci" //button
+					  ];
+		var hRow = this.thead.insertRow(0);
+		for (let h of this.headers){
+			// insert the new cell at the end
+			var cell = document.createElement('TH');
+			cell.innerHTML = h;
+			hRow.appendChild(cell);
+		}
+
+		this.colsNumber = this.headers.length;
+
+	}
+
+	addRow(rowId, rowData){
+		var newRow = this.tbody.insertRow(-1);
+
+		/* This id locally indetifies ONE specific order. 
+		   It's used to query the server.*/
+		newRow.id = rowId;
+
+		/* Show row index
+		var cell = newRow.insertCell(-1);
+		cell.innerHTML = newRow.rowIndex;
+		*/
+
+		for (var elem of rowData){
+			var cell = newRow.insertCell(-1);
+			cell.innerHTML = elem;
+		}
+
+		// button: "more info"
+		var btn = document.createElement('BUTTON');
+			
+			//btn.id = rowId;
+			
+			btn.innerHTML = "Più info";
+
+			var thisTable = this; //orders table object
+			var thisRow = newRow; //row object
+			var data = "<table border=1><tr><td>hh</td><td>lkjlj</td><td>lkjlkj</td><td>lkjjljk</td></tr></table>sdasda asdad asdas dad asa das das das das das da da da dad <br> aadsasda as dasdadada as adad asda das da ada sd asd adad asd as a das dsa d asda d s"; //data to be added
+			// add onclick event
+			btn.onclick = function() {
+				OrdersTable.showDetails(thisTable, thisRow, data, this);
+			};
+
+		var btnCell = newRow.insertCell(-1);
+		btnCell.appendChild(btn);
+
+	}
+
+
+	static showDetails(ordTable, uppeRow, completeInfo, thisButton){
+
+		// insert a row below the one of interest (at position rowNum)
+		var detailsRow = ordTable.table.insertRow(uppeRow.rowIndex + 1);
+
+		//insert a single td
+		var uniqueCell = detailsRow.insertCell(0);
+		uniqueCell.colSpan = ordTable.colsNumber;
+
+		// insert details
+		uniqueCell.innerHTML = completeInfo;
+		
+		// update button info
+		var onClickShowEvent = thisButton.onclick;
+		thisButton.innerHTML = "Meno info";
+		thisButton.onclick = function(){ OrdersTable.hideDetails(ordTable, detailsRow, thisButton, onClickShowEvent)};
+	}
+
+	static hideDetails(ordTable, detailsRow, thisButton, onClickShowEvent){
+		ordTable.table.deleteRow(detailsRow.rowIndex);
+
+		// reset button info
+		thisButton.innerHTML = "Più info";
+		thisButton.onclick = onClickShowEvent;
+	}
+
+}
+
 
 /**
  * Elaborates today orders and organizes them in a table
@@ -54,37 +150,30 @@ function sendRequest(url, dataString, responseConsumer){
 function todayOrders(response){
 	// element id where insert the orders table
 	var parent_id = 'today_orders';
+	var table_id = parent_id + '_table';
 
 	//parse response
-	rx = JSON.parse(response);
+	var rx = JSON.parse(response);
 	if(rx.length > 0){
-		// create table header
-		var table = document.createElement('TABLE');
-		table.border = 1;
-		document.getElementById(parent_id).appendChild(table);	
+		// orders table object
+		var ordersTab = new OrdersTable(table_id);
 
-		//header row
-		var headers = [
-						"Nome cliente", 
-					   	"Indirizzo cliente",
-					   	"Dettagli ordine",
-					   	"Commerciante"
-					  ];
-		tr_header = tableRow(headers,true);
-		table.appendChild(tr_header);
-
-
-		// create table rows
+		//insert rows
 		for(let i = 0; i < rx.length; i++){
 			//create a new row for the table
-			row = tableRow([
+			ordersTab.addRow(rx[i].order_number,
+							[
 							rx[i].client_name, 
 						   	rx[i].client_address,
-						   	rx[i].order_details,
-						   	rx[i].retailer_name
-						   ]);
-			table.appendChild(row);
+						   	rx[i].retailer_name,
+						   	rx[i].order_details
+						    ]
+						   );
 		}
+
+
+		// insert table in the page
+		document.getElementById(parent_id).appendChild(ordersTab.table);
 	}
 
 }
@@ -123,10 +212,29 @@ function tableRow(elements,header=false){
 
 	// header cols
 	for (let element of elements){
-		th = document.createElement(col_tag);
-		th.innerHTML = element;
-		tr.appendChild(th);
+		var col = document.createElement(col_tag);
+		col.innerHTML = element;
+		tr.appendChild(col);
 	}
 
 	return tr;
+}
+
+function moreInfo(id){
+	var table = document.getElementById('today_orders_table');
+	row = table.insertRow(id+1);
+	row.innerHTML = "asdadasd";
+
+	/*
+	var div = document.createElement('TR');
+	var p = document.createElement('p');
+	p.innerHTML = "Button " + id + " pressed dfkhsdkfhsdkfhskjafhskhfshfksdfhkshf weihf sifhsdk fskhfdsfhskjhf ";
+
+	div.appendChild(p);
+
+
+	//append to the table row
+	var row = document.getElementById(id);
+	row.appendChild(div);
+	*/
 }
