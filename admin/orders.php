@@ -43,6 +43,8 @@ mysqli_close($link);
 <head>
 	<title>Amministrazione - <?php echo $sito_internet ?></title>
 	<script type="text/javascript" src="js/orders.js"></script>
+	<script type="text/javascript" src="js/clients.js"></script>
+	<script type="text/javascript" src="js/retailers.js"></script>
 </head>
 <body onload="loadOrders()">
 	<?php 
@@ -53,7 +55,7 @@ mysqli_close($link);
 	<br>
 	<h1>Ordini</h1>
 	<h2>Ordini domani</h2>
-
+	<div id="tomorrow_orders"></div>
 	<h2>Ordini oggi</h2>
 	<div id="today_orders"></div>
 

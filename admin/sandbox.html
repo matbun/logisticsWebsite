@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head></head>
+<head>
+	<script type="text/javascript" src="js/clients.js"></script>
+</head>
 <body>
+	<div id="dyn_cont"></div>
+
 	<script type="text/javascript">
 
 		//javascript Date class
-		
+		/*
 		// today and tomorrow
 		var today = new Date(); //is a timestamp
 		document.write(today.toISOString().slice(0, 10));
@@ -23,7 +27,15 @@
 		nextDay.setDate(date.getDate() + 1);
 		document.write("<br>");
 		document.write(nextDay.toISOString().slice(0, 10));
+		*/
 		
+		var clients = new ClientsTable();
+		//document.write(clients.headers);
+		var cl = '{"client_id":1, "client_name":"Giocachio", "client_surname":"Ale", "client_tel":12313123, "client_address":"via dei matti 12", "client_mail":"sad@gmail.com"}';
+		var rx = JSON.parse(cl);
+		clients.addClient(rx.client_id, rx);
+		var div = document.getElementById("dyn_cont");
+		div.appendChild(clients.table);
 	</script>
 </body>
 </html>

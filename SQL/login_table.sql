@@ -98,8 +98,8 @@ CREATE TABLE `retailers`(
 );
 INSERT INTO `retailers` (`retailer_id`, `ret_name`, `ret_owner`, `ret_tel`, `ret_street`, `ret_street_n`, `ret_zip`, `ret_city`, `ret_prov`)
 VALUES 
-	(NULL , 'panetteria almese', 'tonio cartonio', '3393999876', 'maria m.bugnone maetstra', 8, 10040, 'ALMESE', 'TORINO'),
-	(NULL , 'macellaio rivera', 'chef rubio', '33453459876', 'roma', 10, 14980, 'RUBIANA', 'TORINO')
+	(NULL , 'panetteria almese', 'tonio cartonio', '3393999876', 'maria m.bugnone maetstra', 8, 10040, 'Almese', 'Torino'),
+	(NULL , 'macellaio rivera', 'chef rubio', '33453459876', 'roma', 10, 14980, 'Rubiana', 'Torino')
 ;
 
 # Quando sarà implementato il fornted pubblico, devo avviungere una verifica via software che una cera email sia unica tra le 3 

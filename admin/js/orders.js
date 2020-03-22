@@ -3,7 +3,7 @@
  *
  * @return nothig
  */
-    
+
 function loadOrders(){
 	// ajax request for today orders
 	var today = new Date();
@@ -17,7 +17,6 @@ function loadOrders(){
 	sendRequest("get_orders.php", "date=" + tomorrow_compact, tomorrowOrders);
 }
 
-
 /**
  * Send an ajax request to the server
  *
@@ -26,7 +25,7 @@ function loadOrders(){
  * @èaram responseConsumer is the function called to elaborate the response
  * @return nothing
  */
- 
+
 function sendRequest(url, dataString, responseConsumer){
 	// ajax connection object
 	var request = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
@@ -44,24 +43,38 @@ function sendRequest(url, dataString, responseConsumer){
 	request.send(dataString);
 }
 
+/**
+ * Class to manage a table to visualize orders.
+ * Each order is summarized on a row
+ * 
+ * @class OrdersTable
+ */
+    
 class OrdersTable{
-	constructor(tableId){
+	/**
+	 * COnstructor class
+	 *
+	 * @method constructor
+	 * @param tableId identifies the table in the web page.
+	 */
+	    
+	constructor(tableId, headers=null){
 		this.table = document.createElement('TABLE');
 		this.thead = this.table.createTHead();
 		this.tbody = this.table.createTBody();
 		
 		// table metadata
-		this.table.id = tableId; //used to add rows in the body
+		this.table.id = tableId; 
 		this.table.border = 1;
 
 		// header building
-		this.headers = [
+		this.headers = headers==null? [
 						"Nome cliente", 
 					   	"Indirizzo cliente",
 					   	"Commerciante",
 					   	"Dettagli ordine",
-					   	"Approfondisci" //button
-					  ];
+					   	"Approfondisci" // button
+					  ] : headers;
 		var hRow = this.thead.insertRow(0);
 		for (let h of this.headers){
 			// insert the new cell at the end
@@ -71,71 +84,135 @@ class OrdersTable{
 		}
 
 		this.colsNumber = this.headers.length;
-
 	}
 
-	addRow(rowId, rowData){
-		var newRow = this.tbody.insertRow(-1);
+	/**
+	 * Insert a new order in the table. It consists of multiple rows.
+	 *
+	 * @method addOrder
+	 * @param orderId is the unique ID to identify and order in the server.
+	 * @param orderData is the dataset of each order.
+	 */
+	    
+	addOrder(orderId, orderData){
+		// MAIN INFO: brief order summarization. According to headers
+		var mainData = [
+						orderData.client_name + " " + orderData.client_surname,
+						orderData.client_address,
+						orderData.retailer_name,
+						orderData.order_details
+					];
+
+		// MAIN ROW creation (summarizes the order info)
+		var mainRow = this.tbody.insertRow(-1);
 
 		/* This id locally indetifies ONE specific order. 
 		   It's used to query the server.*/
-		newRow.id = rowId;
+		mainRow.id = "main_" + orderId;
 
-		/* Show row index
-		var cell = newRow.insertCell(-1);
-		cell.innerHTML = newRow.rowIndex;
-		*/
-
-		for (var elem of rowData){
-			var cell = newRow.insertCell(-1);
+		// insert elements in the row
+		for (var elem of mainData){
+			var cell = mainRow.insertCell(-1);
 			cell.innerHTML = elem;
 		}
 
-		// button: "more info"
-		var btn = document.createElement('BUTTON');
-			
-			//btn.id = rowId;
-			
+		// create button: "more info"
+		var btn = document.createElement('BUTTON');			
 			btn.innerHTML = "Più info";
 
-			var thisTable = this; //orders table object
-			var thisRow = newRow; //row object
-			var data = "<table border=1><tr><td>hh</td><td>lkjlj</td><td>lkjlkj</td><td>lkjjljk</td></tr></table>sdasda asdad asdas dad asa das das das das das da da da dad <br> aadsasda as dasdadada as adad asda das da ada sd asd adad asd as a das dsa d asda d s"; //data to be added
-			// add onclick event
+			// add onclick event to show more info
 			btn.onclick = function() {
-				OrdersTable.showDetails(thisTable, thisRow, data, this);
+				this.innerHTML = "Meno info";
+				OrdersTable.showDetails(orderId, this);
 			};
 
-		var btnCell = newRow.insertCell(-1);
+		var btnCell = mainRow.insertCell(-1);
 		btnCell.appendChild(btn);
+
+
+		// DETAILS ROW creation (contains all the details)
+		var detailsRow = this.tbody.insertRow(-1);
+		detailsRow.id = "details_" + orderId;
+		detailsRow.style.display = "none";
+		var detailsCell = detailsRow.insertCell(0);
+		detailsCell.colSpan = this.colsNumber;
+
+		// insert details data
+		OrdersTable.detailsContent(detailsCell,orderData); //append data in this btnCell
 
 	}
 
-
-	static showDetails(ordTable, uppeRow, completeInfo, thisButton){
-
-		// insert a row below the one of interest (at position rowNum)
-		var detailsRow = ordTable.table.insertRow(uppeRow.rowIndex + 1);
-
-		//insert a single td
-		var uniqueCell = detailsRow.insertCell(0);
-		uniqueCell.colSpan = ordTable.colsNumber;
-
-		// insert details
-		uniqueCell.innerHTML = completeInfo;
+	/**
+	 * Is a static method called by the onclick event to show the details row.
+	 * The details row already exists and is showed setting its style.disply 
+	 * property to its default value
+	 *
+	 * @method showDetails
+	 * @param orderId to get the row by ID
+	 * @param thisButton to modify oncllick event
+	 * @return nothing
+	 */
+	static showDetails(orderId, thisButton){
+		// show details row
+		var detailsRow = document.getElementById("details_" + orderId);
+		detailsRow.style.display = ""; // reset to default style
 		
 		// update button info
 		var onClickShowEvent = thisButton.onclick;
-		thisButton.innerHTML = "Meno info";
-		thisButton.onclick = function(){ OrdersTable.hideDetails(ordTable, detailsRow, thisButton, onClickShowEvent)};
+		thisButton.onclick = function(){ OrdersTable.hideDetails(orderId, thisButton, onClickShowEvent)};
 	}
 
-	static hideDetails(ordTable, detailsRow, thisButton, onClickShowEvent){
-		ordTable.table.deleteRow(detailsRow.rowIndex);
+	static hideDetails(orderId, thisButton, onClickShowEvent){
+		// hide details row
+		var detailsRow = document.getElementById("details_" + orderId);
+		detailsRow.style.display = "none"; // hide
 
 		// reset button info
 		thisButton.innerHTML = "Più info";
 		thisButton.onclick = onClickShowEvent;
+	}
+
+	static detailsContent(parent, orderData){
+		// spacing
+		parent.appendChild(document.createElement('BR'));
+
+		// client details
+		var clientHeader = document.createElement("H2");
+		parent.appendChild(clientHeader);
+		clientHeader.innerHTML = "Cliente";
+
+		var clientTable = new ClientsTable();
+		clientTable.addClient(0,orderData);
+		parent.appendChild(clientTable.table);
+
+		parent.appendChild(document.createElement('BR'));
+
+		// retailer details
+		var retailerHeader = document.createElement("H2");
+		parent.appendChild(retailerHeader);
+		retailerHeader.innerHTML = "Veditore";
+
+		var retailerTable = new RetailersTable();
+		retailerTable.addRetailer(0,orderData);
+		parent.appendChild(retailerTable.table);
+
+		parent.appendChild(document.createElement('BR'));
+
+		// order details
+		var orderHeader = document.createElement("H2");
+		parent.appendChild(orderHeader);
+		orderHeader.innerHTML = "Ordine";
+		
+		var orderDescr = "<b>Dettagli ordine: </b>" + orderData.order_details + "<br>" + 
+						 "<b>Consegnato: </b>" + (orderData.order_delivered == true ? "Si" : "No")  + "<br>" +
+						 "<b>Prezzo ordine: </b>" + (orderData.order_price == null ? "---" : orderData.order_price) + "€<br>" +
+						 "<b>Costo servizio: </b>" + (orderData.service_cost == null ? "---" : orderData.service_cost) + "€<br>";
+		var p = document.createElement('P');
+		p.innerHTML = orderDescr;
+		parent.appendChild(p);
+
+		// spacing
+		parent.appendChild(document.createElement('BR'));
 	}
 
 }
@@ -161,21 +238,12 @@ function todayOrders(response){
 		//insert rows
 		for(let i = 0; i < rx.length; i++){
 			//create a new row for the table
-			ordersTab.addRow(rx[i].order_number,
-							[
-							rx[i].client_name, 
-						   	rx[i].client_address,
-						   	rx[i].retailer_name,
-						   	rx[i].order_details
-						    ]
-						   );
+			ordersTab.addOrder(rx[i].order_number, rx[i]);
 		}
-
 
 		// insert table in the page
 		document.getElementById(parent_id).appendChild(ordersTab.table);
 	}
-
 }
 
 
@@ -186,8 +254,26 @@ function todayOrders(response){
  * @return nothing
  */
 
-function tomorrowOrders(){
+function tomorrowOrders(response){
+// element id where insert the orders table
+	var parent_id = 'tomorrow_orders';
+	var table_id = parent_id + '_table';
 
+	//parse response
+	var rx = JSON.parse(response);
+	if(rx.length > 0){
+		// orders table object
+		var ordersTab = new OrdersTable(table_id);
+
+		//insert rows
+		for(let i = 0; i < rx.length; i++){
+			//create a new row for the table
+			ordersTab.addOrder(rx[i].order_number, rx[i]);
+		}
+
+		// insert table in the page
+		document.getElementById(parent_id).appendChild(ordersTab.table);
+	}
 }
 
 
