@@ -3,6 +3,7 @@ session_start();
 require_once '../config/config.php'; 
 require_once '../login/verify_authentication.php';
 
+
 // VERIFY AUTHORIZATION
 verify_login('admin', '../index.php');
 ?>
@@ -14,8 +15,8 @@ verify_login('admin', '../index.php');
 </head>
 <body>
 	<?php 
-	// blocco html della navigation sottosito admin
-	echo file_get_contents('admin_nav.html');
+	// navigation block of admin subsite
+	require_once 'admin_nav.php';
 	?>
 
 	<br>

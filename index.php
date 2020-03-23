@@ -1,6 +1,8 @@
 <?php 
 session_start();
 require_once('config/config.php'); 
+require_once("login/user_info_class.php"); 
+
 
 if(!isset($_SESSION['authorized'])){
 	$_SESSION['authorized'] = 0;
@@ -87,10 +89,12 @@ if(!isset($_SESSION['authorized'])){
 	*/
 	
 	if($_SESSION['authorized'] == 1){ // authorized
+		// user info object
+		$user_info = unserialize($_SESSION['user_info']);
 		// display user info
 		echo "<h1>Login effettuato correttamente</h1>";
 
-		printf("Username: %s <br> Type: %s<br><br>", $_SESSION['username'], $_SESSION['usr_type']);
+		printf("Username: %s <br> Type: %s<br><br>", $user_info->username, $user_info->user_type);
 		echo '<li><a href="login/logout.php">Logout</a></li>';
 	}
 	else{ // not authorized

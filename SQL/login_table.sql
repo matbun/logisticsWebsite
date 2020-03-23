@@ -14,6 +14,7 @@ CREATE TABLE `company_users` (
 	`username` VARCHAR(255) NOT NULL UNIQUE,
 	`password` VARCHAR(255) NOT NULL,
 	`type` VARCHAR(255) NOT NULL,
+	`developer` BOOLEAN NOT NULL DEFAULT FALSE,
 	`name` VARCHAR(255) NOT NULL,
 	`surname` VARCHAR(255) NOT NULL,
 	`tel` VARCHAR(255) NOT NULL,
@@ -21,10 +22,10 @@ CREATE TABLE `company_users` (
 	FOREIGN KEY (`type`) REFERENCES `users_type` (`type`) ON UPDATE CASCADE
 );
 
-INSERT INTO `company_users` (`user_id`, `username`, `password`, `type`, `name`, `surname`, `tel`)
+INSERT INTO `company_users` (`user_id`, `username`, `password`, `type`, `developer`, `name`, `surname`, `tel`)
 VALUES 
-	(NULL , 'matteo', sha1('prova'), 'admin', 'nome', 'cogn', '0113617261'),
-	(NULL, 'driv1', sha1('prova'), 'driver', 'nome', 'cogn', '0113617261')
+	(NULL , 'matteo', sha1('prova'), 'admin', 1, 'nome', 'cogn', '0113617261'),
+	(NULL, 'driv1', sha1('prova'), 'driver', 0, 'nome', 'cogn', '0113617261')
 ;
 
 

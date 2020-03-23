@@ -108,8 +108,8 @@ mysqli_close($link);
 </head>
 <body>
 	<?php 
-	// blocco html della navigation sottosito admin
-	echo file_get_contents('admin_nav.html');
+	// navigation block of admin subsite
+	require_once 'admin_nav.php';
 	?>
 
 	<br>

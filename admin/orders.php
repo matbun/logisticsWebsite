@@ -6,36 +6,6 @@ require_once '../login/verify_authentication.php';
 
 // VERIFY AUTHORIZATION
 verify_login('admin', '../index.php');
-
-
-
-// OPENING CONNECTION
-$link = mysqli_connect($host, $db_user, $db_psw, $db_name);
-
-// Connection check
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
-
-
-// QUERY FOR TODAY ORDERS
-$today = date('Y-m-d');
-$tomorrow = date('Y-m-d', strtotime($today. ' + 1 days'));
-
-/*
-$sql = "SELECT  FROM clients";
-if(!($result = mysqli_query($link, $sql))){
-	echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
-	exit();
-}
-*/
-
-
-
-// Close connection
-mysqli_close($link);
-
 ?>
 
 <!DOCTYPE html>
@@ -48,8 +18,8 @@ mysqli_close($link);
 </head>
 <body onload="loadOrders()">
 	<?php 
-	// admin navigation block
-	echo file_get_contents('admin_nav.html');
+	// navigation block of admin subsite
+	require_once 'admin_nav.php';
 	?>
 
 	<br>
