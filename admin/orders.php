@@ -12,6 +12,7 @@ verify_login('admin', '../index.php');
 <html>
 <head>
 	<title>Amministrazione - <?php echo $sito_internet ?></title>
+	<script type="text/javascript" src="../js/ajax_request.js"></script>
 	<script type="text/javascript" src="js/orders.js"></script>
 	<script type="text/javascript" src="js/clients.js"></script>
 	<script type="text/javascript" src="js/retailers.js"></script>

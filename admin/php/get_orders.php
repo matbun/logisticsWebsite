@@ -1,7 +1,7 @@
 <?php 
 session_start();
 require_once '../../config/config.php'; 
-
+require_once 'db_id_translation.php';
 
 
 //if empty date
@@ -35,7 +35,7 @@ mysqli_close($link);
 
 
 
-// PREPARING RESPONSE
+// RESPONSE DATA STRUCTURES
 
 /**
  * Wrap the data for each order
@@ -82,84 +82,44 @@ class Order{
 
 /**
  * Order indexer class: contains the IDs to uniquely identify an order (primary key)
+ * This class must extend the DbElement class in which is defined the db_id attribute
  *
  * @package default
  * @author Matteo
  **/
-class OrderIndex{
+class OrderIndex extends DbElement{
 	function __construct($cl_id, $ret_id, $date){
 		$this->client_id = $cl_id;
 		$this->retailer_id = $ret_id;
 		$this->date = $date; //string
 
 		// db_id: concatenation of db primary key elements
-		$this->db_id = sprintf("cl%d_ret%d_%s", $cl_id, $ret_id, $date);
+		parent::__construct(sprintf("cl%d_ret%d_%s", $cl_id, $ret_id, $date));
 	}
 }
 
 
-/* "hash table" for items ID translation.
-*  This is to avoid sending to the webpage 
-*  plain dabatabse IDs (in this case retailer_id, client_id).
-*/
-class IdTraslation{
-	function __construct(){
-		// associative array: (client_id + reytailer_id + date) => frnt_id
-		$this->db_to_frontend = array();
-		// associative array: frnt_id => (client_id + reytailer_id + date)
-		$this->frontend_to_db = array();
-		// size
-		$this->size = 0;
-	}
-	
 
-	function addElement($elem){
-		if(!array_key_exists ($elem->db_id , $this->db_to_frontend)) {
+// PREPARING THE RESPONSE
 
-			// knowing order detailed DB info I get its frontend id
-			$this->db_to_frontend[$elem->db_id] = $this->size;
-
-			// knowing the frontend_ID I can get the element DB info, wrapped in a object
-			$this->frontend_to_db[] = $elem;
-
-			$id = $this->size;
-			$this->size++;
-		}
-		else
-			$id = $this->db_to_frontend[$elem->db_id];
-
-		return $id;
-	}
-
-	function getElementByFrontendId($id){
-		if(array_key_exists ($id , $this->frontend_to_db)) {
-			return $this->frontend_to_db[$id];
-		}
-		// if not present
-		return null;
-	}
-
-	function getFrontendId($elem){
-		if(array_key_exists ($elem->db_id , $this->db_to_frontend)) {
-			return $this->db_to_frontend[$elem->db_id];
-		}
-		// if not present
-		return -1;
-	}
-}
-
-
-// SETUP SESSION TO SAVE IdTraslation OBJECT
+// If not existing in session, create a new transaltion table
 if(!isset($_SESSION['orders_id_translation']))
-	$_SESSION['orders_id_translation'] = new IdTraslation();
-
+	$translation_table = new IdTraslation();
+else
+	$translation_table = unserialize($_SESSION['orders_id_translation']);
 
 
 // building response
 $response = array();
 
+// readign the SQL response
 while($row = mysqli_fetch_array($result)){
-	//join di indirizzi e nomi
+
+	// add to the translation table
+	$ord_number = $translation_table->addElement(new OrderIndex($row['client_id'], $row['retailer_id'], $row['ord_date'])); //database identifier
+	
+	
+	//join addresses
 	$cl_full_address = $row['cl_street'] . " " .
 					   $row['cl_street_n'] . ", " .
 					   $row['cl_zip'] . " " .
@@ -171,9 +131,7 @@ while($row = mysqli_fetch_array($result)){
 					    $row['ret_city'] . " (" .
 					    $row['ret_prov'] . ")";
 
-	$ord_number = $_SESSION['orders_id_translation']->addElement(new OrderIndex($row['client_id'], $row['retailer_id'], $row['ord_date'])); //database identifier
-
-	//preparazione della response
+	// add element to the response
 	$response[] = new Order(
 							$ord_number,
 							$row['cl_name'],
@@ -198,5 +156,8 @@ echo json_encode($response);
 
 // Free result set
 mysqli_free_result($result);
+
+// saving the updated translation table in session
+$_SESSION['orders_id_translation'] = serialize($translation_table);
 
  ?>

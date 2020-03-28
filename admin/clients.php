@@ -38,6 +38,7 @@ if(isset($_POST['deleteItem']) and is_numeric($_POST['item_id'])){
 
 
 
+/*
 
 // QUERY FOR CLIENTS LIST
 $sql = "SELECT * FROM clients";
@@ -47,7 +48,7 @@ if(!($result = mysqli_query($link, $sql))){
 }
 
 
-
+*/
 
 
 // Close connection
@@ -58,8 +59,10 @@ mysqli_close($link);
 <html>
 <head>
 	<title>Admin page - <?php echo $sito_internet ?></title>
+    <script type="text/javascript" src="../js/ajax_request.js"></script>
+    <script type="text/javascript" src="js/clients.js"></script>
 </head>
-<body>
+<body onload="loadClients()">
 	<?php 
 	// navigation block of admin subsite
     require_once 'admin_nav.php';
@@ -78,8 +81,9 @@ mysqli_close($link);
 	</form>
 
 	<h2>Lista clienti</h2>
-
+    <div id="clients"></div>
 	<?php 
+    /*
     echo $result_msg;
 
     
@@ -130,7 +134,7 @@ mysqli_close($link);
     } else{
         echo "<p>Nessun cliente trovato...</p>";
     }
-
+    */
 	?>
 
 	

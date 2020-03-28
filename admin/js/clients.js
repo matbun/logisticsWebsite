@@ -1,3 +1,11 @@
+/**
+ * Se gli headers non sono specifiacti, usa quelli di default
+ *
+ * @method 
+ * @param 
+ * @return 
+ */
+    
 class ClientsTable{
 	constructor(headers=null){
 		this.table = document.createElement('TABLE');
@@ -13,7 +21,8 @@ class ClientsTable{
 					   	"Cognome",
 					   	"Telefono",
 					   	"Indirizzo",
-					   	"Email" 
+					   	"Email",
+					   	"Elimina"
 					  ] : headers;
 		var hRow = this.thead.insertRow(0);
 		for (let h of this.headers){
@@ -45,5 +54,33 @@ class ClientsTable{
 			var cell = clientRow.insertCell(-1);
 			cell.innerHTML = elem;
 		}
+	}
+}
+
+
+function loadClients(){
+	var clientsRequest = new AjaxRequest("POST", "php/get_clients.php", arrangeOrders);
+	clientsRequest.sendRequest();
+}
+
+function arrangeOrders(response){
+	// element id where insert the orders table
+	var parent_id = 'clients';
+	var table_id = parent_id + '_table';
+
+	//parse response
+	var rx = JSON.parse(response);
+	if(rx.length > 0){
+		// clients table object
+		var clientsTab = new ClientsTable();
+
+		//insert rows
+		for(let i = 0; i < rx.length; i++){
+			//create a new row for the table
+			clientsTab.addClient(rx[i].client_id, rx[i]);
+		}
+
+		// insert table in the page
+		document.getElementById(parent_id).appendChild(clientsTab.table);
 	}
 }
